@@ -10,6 +10,11 @@ export interface User {
   isActive: boolean;
   createdAt: Date;
   lastLogin?: Date;
+  studentId?: string;
+  employeeId?: string;
+  avatar?: string;
+  mfaEnabled?: boolean;
+  permissions?: string[];
 }
 
 export enum UserRole {
