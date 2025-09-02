@@ -26,36 +26,38 @@ const swaggerDocument = {
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use('/api', routes);
 
-const PORT = process.env.serverPORT || 3000;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, async () => {
   logger.info(`Server running on port ${PORT}`);
-  await sequelize.sync({ force: false });
 
-  // Seed default admin
-  const adminUsername = 'admin';
-  const adminEmail = 'admin@university.com';
-  const adminPassword = 'adminpass';
+  try {
+    await sequelize.sync({ force: false });
+    logger.info('Database synced');
 
-  // Find by username
-  const admin = await User.findOne({ where: { username: adminUsername } });
+    const adminUsername = 'admin';
+    const adminEmail = 'admin@university.com';
+    const adminPassword = 'adminpass';
 
-  if (admin) {
-    // Update existing admin
-    await admin.update({
-      email: adminEmail,
-      hashed_password: await bcrypt.hash(adminPassword, 10),
-      role: 'admin',
-    });
-    logger.info(`Default admin updated. Email: ${adminEmail}, Password: ${adminPassword} (change it)`);
-  } else {
-    // Create admin if not exists
-    await User.create({
-      username: adminUsername,
-      email: adminEmail,
-      hashed_password: await bcrypt.hash(adminPassword, 10),
-      role: 'admin',
-    });
-    logger.info(`Default admin created. Email: ${adminEmail}, Password: ${adminPassword} (change it)`);
+    const admin = await User.findOne({ where: { username: adminUsername } });
+
+    if (admin) {
+      await admin.update({
+        email: adminEmail,
+        hashed_password: await bcrypt.hash(adminPassword, 10),
+        role: 'admin',
+      });
+      logger.info(`Default admin updated. Email: ${adminEmail}, Password: ${adminPassword} (change it)`);
+    } else {
+      await User.create({
+        username: adminUsername,
+        email: adminEmail,
+        hashed_password: await bcrypt.hash(adminPassword, 10),
+        role: 'admin',
+      });
+      logger.info(`Default admin created. Email: ${adminEmail}, Password: ${adminPassword} (change it)`);
+    }
+  } catch (err) {
+    logger.error('Error syncing DB or seeding admin:', err);
   }
 });
 
