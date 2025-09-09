@@ -6,7 +6,7 @@ Application React pour gérer :
 - Le suivi des présences
 - Les rapports de paie
 
-## 🚀 Lancer l’application
+## Lancer l’application
 ```bash
 cd frontend
 npm install
